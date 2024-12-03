@@ -9,8 +9,12 @@ static DATA_FILE: &str = "./input.txt";
 // since the compiler cannot know the type of the error at compile time, we need to tell it
 // it is dynamically generated -> dyn
 fn main() -> Result<(), Box<dyn Error>> {
-	
+
 	let input: String 	= fs::read_to_string(DATA_FILE)?;
+	
+	// Puzzle One
+	// ++++++++++
+	
 	let re				= Regex::new(r"mul\(\d*,\d*\)").unwrap();
 	let matches: Vec<&str> = re.find_iter(&input).map(|x| x.as_str()).collect();
 	
@@ -23,6 +27,34 @@ fn main() -> Result<(), Box<dyn Error>> {
 	
 	println!("Answer to puzzle one is: {}", added);
 	
+	// Puzzle Two
+	// ++++++++++
+	 
+	// Match either mul(x,y) or don't() or do()
+	let re							= Regex::new(r"(mul\(\d*,\d*\)|don't\(\)|do\(\))").unwrap();
+	let matches2: Vec<&str>			= re.find_iter(&input).map(|x| x.as_str()).collect();
+	// onlly don't() turns of processing -> start with true
+	let mut process_mul: bool		= true;
+	// reset the counter 
+	added 							= 0; 
+	
+	// Status machine...
+	for amatch in matches2 {
+		
+		if amatch.starts_with("do(") {
+			process_mul = true;
+		} else if amatch.starts_with("don't(") {
+			process_mul = false;
+		} else {
+			if process_mul {
+				added += mul(amatch);
+			}
+		}
+		
+	}
+	
+	println!("Answer to puzzle two is: {}", added);
+
 	Ok(()) //since the main returs result
 }
 
